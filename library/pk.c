@@ -160,6 +160,7 @@ const mbedtls_pk_info_t * mbedtls_pk_info_from_type( mbedtls_pk_type_t pk_type )
  */
 int mbedtls_pk_setup( mbedtls_pk_context *ctx, const mbedtls_pk_info_t *info )
 {
+    printf( "@@ [library/pk.c] mbedtls_pk_setup(): ^^\n" );
     PK_VALIDATE_RET( ctx != NULL );
     if( info == NULL || ctx->pk_info != NULL )
         return( MBEDTLS_ERR_PK_BAD_INPUT_DATA );
