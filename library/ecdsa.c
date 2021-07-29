@@ -866,6 +866,7 @@ int mbedtls_ecdsa_read_signature_restartable( mbedtls_ecdsa_context *ctx,
     const unsigned char *end = sig + slen;
     size_t len;
     mbedtls_mpi r, s;
+    printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): slen: %ld\n", slen );
     ECDSA_VALIDATE_RET( ctx  != NULL );
     ECDSA_VALIDATE_RET( hash != NULL );
     ECDSA_VALIDATE_RET( sig  != NULL );

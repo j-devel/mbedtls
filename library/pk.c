@@ -272,6 +272,7 @@ int mbedtls_pk_verify_restartable( mbedtls_pk_context *ctx,
                const unsigned char *sig, size_t sig_len,
                mbedtls_pk_restart_ctx *rs_ctx )
 {
+    printf( "@@ [library/pk.c] mbedtls_pk_verify_restartable(): ^^\n" );
     PK_VALIDATE_RET( ctx != NULL );
     PK_VALIDATE_RET( ( md_alg == MBEDTLS_MD_NONE && hash_len == 0 ) ||
                      hash != NULL );
@@ -307,6 +308,7 @@ int mbedtls_pk_verify_restartable( mbedtls_pk_context *ctx,
     if( ctx->pk_info->verify_func == NULL )
         return( MBEDTLS_ERR_PK_TYPE_MISMATCH );
 
+    printf( "@@ [library/pk.c] mbedtls_pk_verify_restartable(): sig_len: %ld\n", sig_len );
     return( ctx->pk_info->verify_func( ctx->pk_ctx, md_alg, hash, hash_len,
                                        sig, sig_len ) );
 }
@@ -318,6 +320,7 @@ int mbedtls_pk_verify( mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
                const unsigned char *hash, size_t hash_len,
                const unsigned char *sig, size_t sig_len )
 {
+    printf( "@@ [library/pk.c] mbedtls_pk_verify(): ^^\n" );
     return( mbedtls_pk_verify_restartable( ctx, md_alg, hash, hash_len,
                                            sig, sig_len, NULL ) );
 }
