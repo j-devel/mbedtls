@@ -65,6 +65,13 @@
 
 #include "ecp.h"
 #include "md.h"
+#ifndef G_FOO // @@
+  int g_foo;
+
+  mbedtls_mpi g_r_foo;
+  mbedtls_mpi g_s_foo;
+#define G_FOO
+#endif
 
 /*
  * RFC-4492 page 20:

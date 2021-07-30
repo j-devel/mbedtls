@@ -273,6 +273,7 @@ int mbedtls_pk_verify_restartable( mbedtls_pk_context *ctx,
                mbedtls_pk_restart_ctx *rs_ctx )
 {
     printf( "@@ [library/pk.c] mbedtls_pk_verify_restartable(): ^^\n" );
+
     PK_VALIDATE_RET( ctx != NULL );
     PK_VALIDATE_RET( ( md_alg == MBEDTLS_MD_NONE && hash_len == 0 ) ||
                      hash != NULL );
@@ -321,6 +322,14 @@ int mbedtls_pk_verify( mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
                const unsigned char *sig, size_t sig_len )
 {
     printf( "@@ [library/pk.c] mbedtls_pk_verify(): ^^\n" );
+    printf( "@@ [library/pk.c] mbedtls_pk_verify(): g_foo = 42;\n" ); g_foo = 42;
+
+    printf( "@@ [library/pk.c] mbedtls_pk_verify(): before setup `g_{r,s}_foo`\n" );
+    mbedtls_mpi_init( &g_r_foo );
+    mbedtls_mpi_init( &g_s_foo );
+    printf( "@@ [library/pk.c] mbedtls_pk_verify(): TODO !!!! bind `g_{r,s}_foo`\n" );
+    printf( "@@ [library/pk.c] mbedtls_pk_verify(): after setup `g_{r,s}_foo`\n" );
+
     return( mbedtls_pk_verify_restartable( ctx, md_alg, hash, hash_len,
                                            sig, sig_len, NULL ) );
 }

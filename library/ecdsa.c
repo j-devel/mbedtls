@@ -618,6 +618,7 @@ static int ecdsa_verify_restartable( mbedtls_ecp_group *grp,
     mbedtls_ecp_point R;
     mbedtls_mpi *pu1 = &u1, *pu2 = &u2;
 
+    printf( "@@ [library/ecdsa.c] ecdsa_verify_restartable(): blen: %ld\n", blen );
     mbedtls_ecp_point_init( &R );
     mbedtls_mpi_init( &e ); mbedtls_mpi_init( &s_inv );
     mbedtls_mpi_init( &u1 ); mbedtls_mpi_init( &u2 );
@@ -867,19 +868,23 @@ int mbedtls_ecdsa_read_signature_restartable( mbedtls_ecdsa_context *ctx,
     size_t len;
     mbedtls_mpi r, s;
     printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): slen: %ld\n", slen );
+    printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): g_foo: %d\n", g_foo );
     ECDSA_VALIDATE_RET( ctx  != NULL );
     ECDSA_VALIDATE_RET( hash != NULL );
     ECDSA_VALIDATE_RET( sig  != NULL );
 
+    printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): TODO !!!! use `g_{r,s}_foo`\n" );
     mbedtls_mpi_init( &r );
     mbedtls_mpi_init( &s );
 
+    printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): before mbedtls_asn1_get_tag()\n");
     if( ( ret = mbedtls_asn1_get_tag( &p, end, &len,
                     MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
     {
         ret += MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
         goto cleanup;
     }
+    printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): after mbedtls_asn1_get_tag()\n");
 
     if( p + len != end )
     {
