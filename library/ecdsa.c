@@ -642,6 +642,7 @@ static int ecdsa_verify_restartable( mbedtls_ecp_group *grp,
     }
 #endif /* MBEDTLS_ECP_RESTARTABLE */
 
+    printf( "@@ [library/ecdsa.c] ecdsa_verify_restartable(): before Step 1\n" );
     /*
      * Step 1: make sure r and s are in range 1..n-1
      */
@@ -652,11 +653,13 @@ static int ecdsa_verify_restartable( mbedtls_ecp_group *grp,
         goto cleanup;
     }
 
+    printf( "@@ [library/ecdsa.c] ecdsa_verify_restartable(): before Step 3\n" );
     /*
      * Step 3: derive MPI from hashed message
      */
     MBEDTLS_MPI_CHK( derive_mpi( grp, &e, buf, blen ) );
 
+    printf( "@@ [library/ecdsa.c] ecdsa_verify_restartable(): before Step 4\n" );
     /*
      * Step 4: u1 = e / s mod n, u2 = r / s mod n
      */
@@ -676,11 +679,14 @@ static int ecdsa_verify_restartable( mbedtls_ecp_group *grp,
 
 muladd:
 #endif
+    printf( "@@ [library/ecdsa.c] ecdsa_verify_restartable(): before Step 5\n" );
     /*
      * Step 5: R = u1 G + u2 Q
      */
+    printf( "@@ [library/ecdsa.c] before ????\n" );
     MBEDTLS_MPI_CHK( mbedtls_ecp_muladd_restartable( grp,
                      &R, pu1, &grp->G, pu2, Q, ECDSA_RS_ECP ) );
+    printf( "@@ [library/ecdsa.c] after ????\n" );
 
     if( mbedtls_ecp_is_zero( &R ) )
     {
@@ -688,12 +694,14 @@ muladd:
         goto cleanup;
     }
 
+    printf( "@@ [library/ecdsa.c] ecdsa_verify_restartable(): before Step 6,7\n" );
     /*
      * Step 6: convert xR to an integer (no-op)
      * Step 7: reduce xR mod n (gives v)
      */
     MBEDTLS_MPI_CHK( mbedtls_mpi_mod_mpi( &R.X, &R.X, &grp->N ) );
 
+    printf( "@@ [library/ecdsa.c] ecdsa_verify_restartable(): before Step 8\n" );
     /*
      * Step 8: check if v (that is, R.X) is equal to r
      */
@@ -847,11 +855,25 @@ int mbedtls_ecdsa_read_signature( mbedtls_ecdsa_context *ctx,
                           const unsigned char *hash, size_t hlen,
                           const unsigned char *sig, size_t slen )
 {
+    printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature(): ^^\n" );
     ECDSA_VALIDATE_RET( ctx  != NULL );
     ECDSA_VALIDATE_RET( hash != NULL );
     ECDSA_VALIDATE_RET( sig  != NULL );
     return( mbedtls_ecdsa_read_signature_restartable(
                 ctx, hash, hlen, sig, slen, NULL ) );
+}
+
+// @@
+void g_voucher_init( const mbedtls_mpi *r, const mbedtls_mpi *s ) {
+    printf( "@@ [library/ecdsa.c] g_voucher_init(): enabling `g_voucher_mode`;\n" );
+    g_voucher_mode = G_VOUCHER_MODE_ENABLED;
+
+    printf( "@@ [library/ecdsa.c] g_voucher_init(): before setup `g_{r,s}_voucher`\n" );
+    mbedtls_mpi_init( &g_r_voucher );
+    mbedtls_mpi_init( &g_s_voucher );
+    mbedtls_mpi_copy( &g_r_voucher, r );
+    mbedtls_mpi_copy( &g_s_voucher, s );
+    printf( "@@ [library/ecdsa.c] g_voucher_init(): after setup `g_{r,s}_voucher`\n" );
 }
 
 /*
@@ -867,17 +889,25 @@ int mbedtls_ecdsa_read_signature_restartable( mbedtls_ecdsa_context *ctx,
     const unsigned char *end = sig + slen;
     size_t len;
     mbedtls_mpi r, s;
+    printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): ^^\n" );
     printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): slen: %ld\n", slen );
-    printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): g_foo: %d\n", g_foo );
+    printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): g_voucher_mode: %d\n", g_voucher_mode );
     ECDSA_VALIDATE_RET( ctx  != NULL );
     ECDSA_VALIDATE_RET( hash != NULL );
     ECDSA_VALIDATE_RET( sig  != NULL );
 
-    printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): TODO !!!! use `g_{r,s}_foo`\n" );
     mbedtls_mpi_init( &r );
     mbedtls_mpi_init( &s );
 
+if ( g_voucher_mode == G_VOUCHER_MODE_ENABLED ) { //======== @@
+    printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): `G_VOUCHER_MODE_ENABLED` met"
+            " --> bypass ASN1 stuff and use `g_{r,s}_voucher` instead!! (`sig` and `slen` not used)\n" );
+
+    mbedtls_mpi_copy( &r, &g_r_voucher );
+    mbedtls_mpi_copy( &s, &g_s_voucher );
+} else { //======== @@ orig
     printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): before mbedtls_asn1_get_tag()\n");
+
     if( ( ret = mbedtls_asn1_get_tag( &p, end, &len,
                     MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
     {
@@ -899,6 +929,8 @@ int mbedtls_ecdsa_read_signature_restartable( mbedtls_ecdsa_context *ctx,
         ret += MBEDTLS_ERR_ECP_BAD_INPUT_DATA;
         goto cleanup;
     }
+} //======== @@
+
 #if defined(MBEDTLS_ECDSA_VERIFY_ALT)
     (void) rs_ctx;
 
@@ -911,6 +943,7 @@ int mbedtls_ecdsa_read_signature_restartable( mbedtls_ecdsa_context *ctx,
         goto cleanup;
 #endif /* MBEDTLS_ECDSA_VERIFY_ALT */
 
+    printf( "@@ [library/ecdsa.c] mbedtls_ecdsa_read_signature_restartable(): passed verify...\n" );
     /* At this point we know that the buffer starts with a valid signature.
      * Return 0 if the buffer just contains the signature, and a specific
      * error code if the valid signature is followed by more data. */

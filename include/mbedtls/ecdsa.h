@@ -65,12 +65,16 @@
 
 #include "ecp.h"
 #include "md.h"
-#ifndef G_FOO // @@
-  int g_foo;
 
-  mbedtls_mpi g_r_foo;
-  mbedtls_mpi g_s_foo;
-#define G_FOO
+// @@
+#ifndef G_VOUCHER_DEBUG
+#define G_VOUCHER_DEBUG
+
+#define G_VOUCHER_MODE_ENABLED 42
+int g_voucher_mode;
+mbedtls_mpi g_r_voucher;
+mbedtls_mpi g_s_voucher;
+void g_voucher_init( const mbedtls_mpi *r, const mbedtls_mpi *s );
 #endif
 
 /*

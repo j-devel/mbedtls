@@ -356,6 +356,11 @@ int mbedtls_pk_can_do( const mbedtls_pk_context *ctx, mbedtls_pk_type_t type );
 int mbedtls_pk_verify( mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
                const unsigned char *hash, size_t hash_len,
                const unsigned char *sig, size_t sig_len );
+// @@
+int mbedtls_pk_verify_voucher( mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
+               const mbedtls_mpi *r, const mbedtls_mpi *s, // @@
+               const unsigned char *hash, size_t hash_len,
+               const unsigned char *sig, size_t sig_len );
 
 /**
  * \brief           Restartable version of \c mbedtls_pk_verify()

@@ -2909,7 +2909,9 @@ int mbedtls_ecp_muladd_restartable(
 
 mul2:
 #endif
+    printf( "@@ [library/ecp.c] before ???? why crash? here in case of using voucher??\n" );
     MBEDTLS_MPI_CHK( mbedtls_ecp_mul_shortcuts( grp, pR,  n, Q, rs_ctx ) );
+    printf( "@@ [library/ecp.c] after ????\n" );
 
 #if defined(MBEDTLS_ECP_INTERNAL_ALT)
     if( ( is_grp_capable = mbedtls_internal_ecp_grp_capable( grp ) ) )
